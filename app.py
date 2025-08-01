@@ -46,7 +46,7 @@ with colA:
     st.caption("Proportion of each event type (voltage, power, etc.)")
     pie_labels = df["Event Details"].value_counts().index
     pie_sizes = df["Event Details"].value_counts().values
-    fig1, ax1 = plt.subplots(figsize=(3.5, 3.5))
+    fig1, ax1 = plt.subplots(figsize=(2.5, 2.5))
     ax1.pie(pie_sizes, labels=pie_labels, autopct="%1.1f%%", startangle=90)
     ax1.axis("equal")
     st.pyplot(fig1)
@@ -106,7 +106,7 @@ with colF:
     st.markdown("**📦 Voltage Distribution**")
     st.caption("Boxplot showing voltage ranges and outliers")
     volt_df = df[df["Event Details"].str.lower() == "voltage"]
-    fig5, ax5 = plt.subplots(figsize=(3.5, 2.5))
+    fig5, ax5 = plt.subplots(figsize=(3.5, 2.0))
     sns.boxplot(x=volt_df["Value"], ax=ax5, color="lightblue")
     st.pyplot(fig5)
 
