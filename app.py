@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -39,9 +38,8 @@ col2.metric("Avg Power", f"{df[df['Event Details'].str.lower()=='power']['Value'
 col3.metric("Avg Current", f"{df[df['Event Details'].str.lower()=='current']['Value'].mean():.2f} mA")
 col4.metric("Min Energy", f"{df[df['Event Details'].str.lower()=='add electricity']['Value'].min():.2f} kWh")
 
-# Section 1: Pie + Power Line + Area
+# Section 1: Pie + Power Line
 st.markdown("### 📈 General Patterns")
-
 colA, colB = st.columns(2)
 with colA:
     st.markdown("**🍕 Event Type Distribution**")
@@ -64,29 +62,24 @@ with colB:
     ax2.grid(True)
     st.pyplot(fig2)
 
-# Create two columns
-col1, col2 = st.columns(2)
-
-# --- Column 1: Hourly Heatmap ---
-with col1:
+# Section 2: Heatmap + Cumulative Energy
+colC, colD = st.columns(2)
+with colC:
     st.markdown("**🔥 Hourly Heatmap**")
     st.caption("Hour-by-hour energy use intensity")
+    energy_df = df[df["Event Details"].str.lower() == "add electricity"].copy()
     energy_df["Hour"] = energy_df["Time"].dt.hour
     energy_df["Date"] = energy_df["Time"].dt.date
     heatmap_data = energy_df.pivot_table(values="Value", index="Hour", columns="Date", aggfunc="sum", fill_value=0)
-
     fig6, ax6 = plt.subplots(figsize=(4, 2.5))
     sns.heatmap(heatmap_data, cmap="YlGnBu", ax=ax6)
     st.pyplot(fig6)
 
-# --- Column 2: Cumulative Energy ---
-with col2:
+with colD:
     st.markdown("**🌊 Cumulative Energy**")
     st.caption("Running total of energy usage over time")
-    
     energy_df_cum = df[df["Event Details"].str.lower() == "add electricity"].copy()
     energy_df_cum["Cumulative kWh"] = energy_df_cum["Value"].cumsum()
-
     fig3, ax3 = plt.subplots(figsize=(3.5, 2))
     ax3.fill_between(energy_df_cum["Time"], energy_df_cum["Cumulative kWh"], color='green', alpha=0.7)
     ax3.set_xlabel("Time")
@@ -95,12 +88,10 @@ with col2:
     fig3.tight_layout()
     st.pyplot(fig3)
 
-
-# Section 2: Bar + Box + Heatmap
+# Section 3: Daily Bar + Voltage Box
 st.markdown("### 📅 Daily Trends")
-
-colC, colD = st.columns(2)
-with colC:
+colE, colF = st.columns(2)
+with colE:
     st.markdown("**📅 Daily Energy Usage**")
     st.caption("Energy used per day (kWh)")
     df["Date"] = df["Time"].dt.date
@@ -108,7 +99,7 @@ with colC:
     fig4 = px.bar(daily, x="Date", y="Value", labels={"Value": "kWh"}, height=250)
     st.plotly_chart(fig4, use_container_width=True)
 
-with colD:
+with colF:
     st.markdown("**📦 Voltage Distribution**")
     st.caption("Boxplot showing voltage ranges and outliers")
     volt_df = df[df["Event Details"].str.lower() == "voltage"]
@@ -116,20 +107,10 @@ with colD:
     sns.boxplot(x=volt_df["Value"], ax=ax5, color="lightblue")
     st.pyplot(fig5)
 
-st.markdown("**🔥 Hourly Heatmap**")
-st.caption("Hour-by-hour energy use intensity")
-energy_df["Hour"] = energy_df["Time"].dt.hour
-energy_df["Date"] = energy_df["Time"].dt.date
-heatmap_data = energy_df.pivot_table(values="Value", index="Hour", columns="Date", aggfunc="sum")
-fig6, ax6 = plt.subplots(figsize=(4, 2.5))
-sns.heatmap(heatmap_data, cmap="YlGnBu", ax=ax6)
-st.pyplot(fig6)
-
-# Section 3: Dual + Scatter
+# Section 4: Dual Axis + Scatter
 st.markdown("### 🧪 Comparative Insights")
-
-colE, colF = st.columns(2)
-with colE:
+colG, colH = st.columns(2)
+with colG:
     st.markdown("**📈 Power vs Voltage Over Time**")
     st.caption("Dual-line comparison on same timeline")
     voltage_df = df[df["Event Details"].str.lower() == "voltage"].sort_values("Time")
@@ -141,7 +122,7 @@ with colE:
     ax8.set_ylabel("Voltage", color="blue")
     st.pyplot(fig7)
 
-with colF:
+with colH:
     st.markdown("**🧮 Power vs Voltage Scatter**")
     st.caption("Relationship between voltage and power draw")
     merged = pd.merge(power_df, voltage_df, on="Time", suffixes=("_power", "_voltage"))
