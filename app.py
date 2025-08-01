@@ -7,7 +7,7 @@ import plotly.express as px
 
 # Page setup
 st.set_page_config(page_title="Fridge Energy Dashboard", layout="wide")
-st.markdown("<h1 style='text-align: center;'>⚡ Compact Fridge Energy Dashboard</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>⚡ Fridge Energy Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
 # Load data
