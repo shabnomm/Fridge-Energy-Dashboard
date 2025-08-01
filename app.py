@@ -59,8 +59,11 @@ with colB:
     ax2.plot(power_df["Time"], power_df["Value"], color="orange")
     ax2.set_ylabel("Watts")
     ax2.set_xlabel("Time")
+    ax2.tick_params(axis='x', labelrotation=45, labelsize=8)
     ax2.grid(True)
+    fig2.tight_layout()
     st.pyplot(fig2)
+
 
 # Section 2: Heatmap + Cumulative Energy
 colC, colD = st.columns(2)
@@ -117,10 +120,15 @@ with colG:
     fig7, ax7 = plt.subplots(figsize=(4, 2.5))
     ax7.plot(power_df["Time"], power_df["Value"], color="red", label="Power (W)")
     ax7.set_ylabel("Power", color="red")
+    ax7.set_xlabel("Time")
+    ax7.tick_params(axis='x', labelrotation=45, labelsize=8)
+    ax7.grid(True)
     ax8 = ax7.twinx()
     ax8.plot(voltage_df["Time"], voltage_df["Value"], color="blue", label="Voltage (V)")
     ax8.set_ylabel("Voltage", color="blue")
+    fig7.tight_layout()
     st.pyplot(fig7)
+
 
 with colH:
     st.markdown("**🧮 Power vs Voltage Scatter**")
