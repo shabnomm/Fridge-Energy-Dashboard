@@ -39,13 +39,11 @@ col2.metric("Avg Power", f"{df[df['Event Details'].str.lower()=='power']['Value'
 col3.metric("Avg Current", f"{df[df['Event Details'].str.lower()=='current']['Value'].mean():.2f} mA")
 col4.metric("Min Energy", f"{df[df['Event Details'].str.lower()=='add electricity']['Value'].min():.2f} kWh")
 
-# Section 1: Pie + Power Line + Area
+# Section 1: Pie + Line
 st.markdown("### 📈 General Patterns")
-
 colA, colB = st.columns(2)
 with colA:
     st.markdown("**🍕 Event Type Distribution**")
-    st.caption("Proportion of each event type (voltage, power, etc.)")
     pie_labels = df["Event Details"].value_counts().index
     pie_sizes = df["Event Details"].value_counts().values
     fig1, ax1 = plt.subplots(figsize=(3.5, 3.5))
@@ -55,78 +53,69 @@ with colA:
 
 with colB:
     st.markdown("**⏱️ Power Over Time**")
-    st.caption("How the fridge's power usage changes over time")
-    power_df = df[df["Event Details"].str.lower() == "power"].sort_values("Time")
-    fig2, ax2 = plt.subplots(figsize=(4, 2.5))
+    power_df = df[df["Event Details"].str.lower()=="power"].sort_values("Time")
+    fig2, ax2 = plt.subplots(figsize=(4,2.5))
     ax2.plot(power_df["Time"], power_df["Value"], color="orange")
-    ax2.set_ylabel("Watts")
-    ax2.set_xlabel("Time")
-    ax2.grid(True)
+    ax2.set_ylabel("Watts"); ax2.set_xlabel("Time")
+    ax2.tick_params(axis='x', rotation=45)
     st.pyplot(fig2)
 
+# Cumulative Energy smaller
 st.markdown("**🌊 Cumulative Energy**")
-st.caption("Running total of energy usage over time")
-energy_df = df[df["Event Details"].str.lower() == "add electricity"].copy()
+energy_df = df[df["Event Details"].str.lower()=="add electricity"].copy()
 energy_df["Cumulative kWh"] = energy_df["Value"].cumsum()
-fig3, ax3 = plt.subplots(figsize=(6, 2.5))
+fig3, ax3 = plt.subplots(figsize=(4,2.5))
 ax3.fill_between(energy_df["Time"], energy_df["Cumulative kWh"], color='green', alpha=0.6)
-ax3.set_xlabel("Time")
-ax3.set_ylabel("kWh")
+ax3.set_ylabel("kWh"); ax3.set_xlabel("Time")
+ax3.tick_params(axis='x', rotation=45)
+fig3.tight_layout()
 st.pyplot(fig3)
 
-# Section 2: Bar + Box + Heatmap
+# Section 2: Daily + Box
 st.markdown("### 📅 Daily Trends")
-
 colC, colD = st.columns(2)
 with colC:
     st.markdown("**📅 Daily Energy Usage**")
-    st.caption("Energy used per day (kWh)")
     df["Date"] = df["Time"].dt.date
-    daily = df[df["Event Details"].str.lower() == "add electricity"].groupby("Date")["Value"].sum().reset_index()
-    fig4 = px.bar(daily, x="Date", y="Value", labels={"Value": "kWh"}, height=250)
+    daily = df[df["Event Details"].str.lower()=="add electricity"].groupby("Date")["Value"].sum().reset_index()
+    fig4 = px.bar(daily, x="Date", y="Value", labels={"Value":"kWh"}, height=250)
     st.plotly_chart(fig4, use_container_width=True)
 
 with colD:
     st.markdown("**📦 Voltage Distribution**")
-    st.caption("Boxplot showing voltage ranges and outliers")
-    volt_df = df[df["Event Details"].str.lower() == "voltage"]
-    fig5, ax5 = plt.subplots(figsize=(3.5, 2.5))
+    volt_df = df[df["Event Details"].str.lower()=="voltage"]
+    fig5, ax5 = plt.subplots(figsize=(3.5,2.5))
     sns.boxplot(x=volt_df["Value"], ax=ax5, color="lightblue")
     st.pyplot(fig5)
 
+# Heatmap smaller
 st.markdown("**🔥 Hourly Heatmap**")
-st.caption("Hour-by-hour energy use intensity")
 energy_df["Hour"] = energy_df["Time"].dt.hour
-energy_df["Date"] = energy_df["Time"].dt.date
 heatmap_data = energy_df.pivot_table(values="Value", index="Hour", columns="Date", aggfunc="sum")
-fig6, ax6 = plt.subplots(figsize=(6, 3.5))
+fig6, ax6 = plt.subplots(figsize=(4,2.5))
 sns.heatmap(heatmap_data, cmap="YlGnBu", ax=ax6)
+fig6.tight_layout()
 st.pyplot(fig6)
 
-# Section 3: Dual + Scatter
+# Section 3: Comparative
 st.markdown("### 🧪 Comparative Insights")
-
 colE, colF = st.columns(2)
 with colE:
     st.markdown("**📈 Power vs Voltage Over Time**")
-    st.caption("Dual-line comparison on same timeline")
-    voltage_df = df[df["Event Details"].str.lower() == "voltage"].sort_values("Time")
-    fig7, ax7 = plt.subplots(figsize=(4, 2.5))
-    ax7.plot(power_df["Time"], power_df["Value"], color="red", label="Power (W)")
+    voltage_df = df[df["Event Details"].str.lower()=="voltage"].sort_values("Time")
+    fig7, ax7 = plt.subplots(figsize=(4,2.5))
+    ax7.plot(power_df["Time"], power_df["Value"], color="red", label="Power")
     ax7.set_ylabel("Power", color="red")
     ax8 = ax7.twinx()
-    ax8.plot(voltage_df["Time"], voltage_df["Value"], color="blue", label="Voltage (V)")
-    ax8.set_ylabel("Voltage", color="blue")
+    ax8.plot(voltage_df["Time"], voltage_df["Value"], color="blue", label="Voltage")
+    fig7.tight_layout()
     st.pyplot(fig7)
-
 with colF:
     st.markdown("**🧮 Power vs Voltage Scatter**")
-    st.caption("Relationship between voltage and power draw")
-    merged = pd.merge(power_df, voltage_df, on="Time", suffixes=("_power", "_voltage"))
-    fig8 = px.scatter(merged, x="Value_voltage", y="Value_power", height=250,
-                      labels={"Value_voltage": "Voltage (V)", "Value_power": "Power (W)"})
+    merged = pd.merge(power_df, voltage_df, on="Time", suffixes=("_power","_voltage"))
+    fig8 = px.scatter(merged, x="Value_voltage", y="Value_power", labels={"Value_voltage":"V","Value_power":"W"}, height=250)
     st.plotly_chart(fig8, use_container_width=True)
 
 # Footer
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: gray;'>Refined by Shanzia Shabnom Mithun • CSE407</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center; color:gray;'>Refined by Shanzia Shabnom Mithun • CSE407</div>", unsafe_allow_html=True)
