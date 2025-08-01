@@ -66,12 +66,16 @@ with colB:
 
 st.markdown("**🌊 Cumulative Energy**")
 st.caption("Running total of energy usage over time")
+
 energy_df = df[df["Event Details"].str.lower() == "add electricity"].copy()
 energy_df["Cumulative kWh"] = energy_df["Value"].cumsum()
-fig3, ax3 = plt.subplots(figsize=(4, 2.5))
+
+fig3, ax3 = plt.subplots(figsize=(3.5, 2))  # 📏 Make graph smaller
 ax3.fill_between(energy_df["Time"], energy_df["Cumulative kWh"], color='green', alpha=0.7)
 ax3.set_xlabel("Time")
 ax3.set_ylabel("kWh")
+ax3.tick_params(axis='x', rotation=45)  # 🔄 Rotate x-axis labels
+fig3.tight_layout()  # ✅ Prevents overlapping and padding issues
 st.pyplot(fig3)
 
 # Section 2: Bar + Box + Heatmap
