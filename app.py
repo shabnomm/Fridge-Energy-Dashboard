@@ -64,19 +64,36 @@ with colB:
     ax2.grid(True)
     st.pyplot(fig2)
 
-st.markdown("**🌊 Cumulative Energy**")
-st.caption("Running total of energy usage over time")
+# Create two columns
+col1, col2 = st.columns(2)
 
-energy_df = df[df["Event Details"].str.lower() == "add electricity"].copy()
-energy_df["Cumulative kWh"] = energy_df["Value"].cumsum()
+# --- Column 1: Hourly Heatmap ---
+with col1:
+    st.markdown("**🔥 Hourly Heatmap**")
+    st.caption("Hour-by-hour energy use intensity")
+    energy_df["Hour"] = energy_df["Time"].dt.hour
+    energy_df["Date"] = energy_df["Time"].dt.date
+    heatmap_data = energy_df.pivot_table(values="Value", index="Hour", columns="Date", aggfunc="sum", fill_value=0)
 
-fig3, ax3 = plt.subplots(figsize=(3.5, 2))  # Smaller chart
-ax3.fill_between(energy_df["Time"], energy_df["Cumulative kWh"], color='green', alpha=0.7)
-ax3.set_xlabel("Time")
-ax3.set_ylabel("kWh")
-ax3.tick_params(axis='x', labelrotation=45, labelsize=8)  # Rotate + shrink font
-fig3.tight_layout()
-st.pyplot(fig3)
+    fig6, ax6 = plt.subplots(figsize=(4, 2.5))
+    sns.heatmap(heatmap_data, cmap="YlGnBu", ax=ax6)
+    st.pyplot(fig6)
+
+# --- Column 2: Cumulative Energy ---
+with col2:
+    st.markdown("**🌊 Cumulative Energy**")
+    st.caption("Running total of energy usage over time")
+    
+    energy_df_cum = df[df["Event Details"].str.lower() == "add electricity"].copy()
+    energy_df_cum["Cumulative kWh"] = energy_df_cum["Value"].cumsum()
+
+    fig3, ax3 = plt.subplots(figsize=(3.5, 2))
+    ax3.fill_between(energy_df_cum["Time"], energy_df_cum["Cumulative kWh"], color='green', alpha=0.7)
+    ax3.set_xlabel("Time")
+    ax3.set_ylabel("kWh")
+    ax3.tick_params(axis='x', labelrotation=45, labelsize=8)
+    fig3.tight_layout()
+    st.pyplot(fig3)
 
 
 # Section 2: Bar + Box + Heatmap
