@@ -49,8 +49,8 @@ Household refrigerators run 24/7, often unnoticed as major contributors to elect
 - **Voltage & Current Fluctuation Graphs**  
 - **Summary Cards** for total cost and energy  
 
-🖼️ *(Insert screenshot of the dashboard here)*
-
+🖼️ <img width="1561" height="740" alt="image" src="https://github.com/user-attachments/assets/bc1270ef-8fcc-40ea-b894-dbc8cf006aeb" />
+Live Demo: https://fridge-energy-dashboard-hhzvlxaktu7fpxrvog5jlt.streamlit.app
 ---
 
 ## 💡 Insights & Outcomes
